@@ -3,27 +3,20 @@ package com.example.flutternativeimage;
 import android.content.Context;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.PluginRegistry;
 
-/**
- * FlutterNativeImagePlugin
- */
-public class FlutterNativeImagePlugin implements FlutterPlugin {
+public class FlutterNativeImagePlugin implements FlutterPlugin, ActivityAware {
   private static final String CHANNEL_NAME = "flutter_native_image";
   private MethodChannel channel;
-  /**
-   * Plugin registration.
-   */
-  public static void registerWith(PluginRegistry.Registrar registrar) {
-    final FlutterNativeImagePlugin plugin = new FlutterNativeImagePlugin();
-    plugin.setupChannel(registrar.messenger(), registrar.context());
-  }
+  private Context context;
 
   @Override
   public void onAttachedToEngine(FlutterPlugin.FlutterPluginBinding binding) {
-    setupChannel(binding.getFlutterEngine().getDartExecutor(), binding.getApplicationContext());
+    this.context = binding.getApplicationContext();
+    setupChannel(binding.getBinaryMessenger(), this.context);
   }
 
   @Override
@@ -38,7 +31,21 @@ public class FlutterNativeImagePlugin implements FlutterPlugin {
   }
 
   private void teardownChannel() {
-    channel.setMethodCallHandler(null);
-    channel = null;
+    if (channel != null) {
+      channel.setMethodCallHandler(null);
+      channel = null;
+    }
   }
+
+  @Override
+  public void onAttachedToActivity(ActivityPluginBinding binding) {}
+
+  @Override
+  public void onDetachedFromActivityForConfigChanges() {}
+
+  @Override
+  public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {}
+
+  @Override
+  public void onDetachedFromActivity() {}
 }
